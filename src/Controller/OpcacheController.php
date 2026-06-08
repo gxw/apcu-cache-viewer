@@ -29,8 +29,10 @@ class OpcacheController
         $status = $this->opcacheService->getStatus();
         $config = $this->opcacheService->getConfiguration();
 
-        // Provide defaults for status array to prevent errors
-        $status = array_merge([
+        // Provide defaults for status array to prevent errors.
+        // Use deep merge so sub-array keys (e.g. opcache_statistics) keep their defaults
+        // when only partially present in the opcache_get_status() output.
+        $defaultStatus = [
             'opcache_enabled' => false,
             'cache_full' => false,
             'restart_pending' => false,
@@ -54,7 +56,15 @@ class OpcacheController
                 'buffer_size' => 0,
                 'buffer_free' => 0,
             ]
-        ], $status);
+        ];
+
+        $status = array_merge($defaultStatus, $status);
+        // Deep merge known sub-arrays so partial real data doesn't wipe out defaults
+        foreach (['memory_usage', 'opcache_statistics', 'jit'] as $key) {
+            if (isset($status[$key]) && is_array($status[$key])) {
+                $status[$key] = array_merge($defaultStatus[$key], $status[$key]);
+            }
+        }
 
         return new Response($this->view->render('opcache/status', [
             'status' => $status,
