@@ -120,7 +120,15 @@ class DashboardController
 
     public function deleteKey(Request $request): Response
     {
-        $key = base64_decode($request->post('key'));
+        $encodedKey = $request->post('key');
+        if ($encodedKey === null || $encodedKey === '') {
+            return new Response(json_encode([
+                'success' => false,
+                'message' => 'No key provided'
+            ]), 400, ['Content-Type' => 'application/json']);
+        }
+
+        $key = base64_decode($encodedKey);
 
         if ($this->cacheService->isKeyPinned($key)) {
             return new Response(json_encode([
@@ -132,15 +140,10 @@ class DashboardController
         $result = $this->cacheService->deleteKey($key);
         $this->auditService->log('delete_key', $key, $result ? 'Deleted' : 'Failed');
 
-        if ($request->isAjax()) {
-            return new Response(json_encode([
-                'success' => $result,
-                'message' => $result ? 'Key deleted successfully' : 'Failed to delete key'
-            ]), 200, ['Content-Type' => 'application/json']);
-        }
-
-        // Redirect back to the dashboard
-        return new Response('', 302, ['Location' => '/']);
+        return new Response(json_encode([
+            'success' => $result,
+            'message' => $result ? 'Key deleted successfully' : 'Failed to delete key'
+        ]), 200, ['Content-Type' => 'application/json']);
     }
 
     public function getCache(Request $request, string $key): Response

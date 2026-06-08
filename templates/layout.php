@@ -473,6 +473,7 @@
 
                 fetch(form.action, {
                     method: 'POST',
+                    redirect: 'manual',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
@@ -482,6 +483,11 @@
                     body: JSON.stringify({ key: keyToDelete })
                 })
                 .then(response => {
+                    if (response.type === 'opaqueredirect') {
+                        // Redirect received — reload the page to reflect the change
+                        window.location.reload();
+                        return;
+                    }
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
