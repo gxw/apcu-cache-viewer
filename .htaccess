@@ -1,0 +1,71 @@
+# HTTP Basic Authentication
+AuthType Basic
+AuthName "Only for special users!"
+AuthUserFile "/var/www/blueboard2/web/apcu/.htpasswd"
+
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    <RequireAll>
+        Require ip 10.48.50.121 85.115.213.245 85.115.213.244 85.115.213.243 93.177.90.9
+        Require valid-user
+    </RequireAll>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2
+    Order Deny,Allow
+    Deny from all
+    Allow from 10.48.50.121
+    Allow from 85.115.213.245
+    Allow from 85.115.213.244
+    Allow from 85.115.213.243
+    Allow from 93.177.90.9
+    
+    Require valid-user
+</IfModule>
+
+
+# Enable the rewrite engine
+RewriteEngine On
+
+# Set the base path for rewrites
+RewriteBase /apcu/
+
+# Set the DirectoryIndex to index.php within the public directory
+DirectoryIndex public/index.php
+
+# Rewrite all requests not directly to a file or directory to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [QSA,L]
+
+
+
+# Security headers
+<IfModule mod_headers.c>
+    # Protect against XSS attacks
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Enable HSTS (uncomment if using HTTPS)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Disable server signature
+    ServerSignature Off
+</IfModule>
+
+# PHP settings
+<IfModule mod_php7.c>
+    php_flag display_errors Off
+    php_value error_reporting E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    php_value memory_limit 256M
+    php_value max_execution_time 300
+    php_flag zlib.output_compression on
+</IfModule>
+

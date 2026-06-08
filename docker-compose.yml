@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: apcu-cache-viewer
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - ./docker/apache.conf:/etc/apache2/sites-available/000-default.conf
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8080
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/database/database.sqlite
+      - CACHE_DRIVER=apcu
+      - SESSION_DRIVER=file
+      - SESSION_LIFETIME=120
+    ports:
+      - "8080:80"
+    networks:
+      - apcu-network
+
+  # Uncomment if you need a MySQL database
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: apcu-mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_DATABASE: ${DB_DATABASE:-apcu_viewer}
+  #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+  #     MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+  #     MYSQL_USER: ${DB_USERNAME:-apcu}
+  #     SERVICE_TAGS: dev
+  #     SERVICE_NAME: mysql
+  #   volumes:
+  #     - dbdata:/var/lib/mysql
+  #   networks:
+  #     - apcu-network
+
+  # Uncomment if you need Redis for sessions/cache
+  # redis:
+  #   image: redis:alpine
+  #   container_name: apcu-redis
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redisdata:/data
+  #   networks:
+  #     - apcu-network
+  #   ports:
+  #     - "6379:6379"
+
+networks:
+  apcu-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  redisdata:
+    driver: local

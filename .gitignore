@@ -1,0 +1,29 @@
+# Composer
+/vendor/
+composer.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# PHP
+.phpunit.cache/
+.phpunit.result.cache
+*.log
+
+# OS
+ehthumbs.db
+Desktop.ini
