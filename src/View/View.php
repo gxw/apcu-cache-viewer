@@ -267,18 +267,11 @@ class View
     }
 
     /**
-     * Get CSRF token
+     * Get CSRF token — delegates to CsrfProtection so the meta tag and
+     * validation reference the same session key.
      */
     public function csrfToken(): string
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (empty($_SESSION['_csrf_token'])) {
-            $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
-        }
-        
-        return $_SESSION['_csrf_token'];
+        return \App\Security\CsrfProtection::token();
     }
 }
