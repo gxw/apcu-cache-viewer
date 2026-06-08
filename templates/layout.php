@@ -455,53 +455,55 @@
                 });
             });
 
-            // Handle delete key forms
-            document.querySelectorAll('.delete-key-form').forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const keyToDelete = this.getAttribute('data-key');
-                    if (!confirm(`Are you sure you want to delete the key: ${atob(keyToDelete)}?`)) {
-                        return;
+            // Handle delete key forms (event delegation — survives Turbo frame swaps)
+            document.addEventListener('submit', function(e) {
+                const form = e.target.closest('.delete-key-form');
+                if (!form) return;
+                e.preventDefault();
+                const keyToDelete = form.getAttribute('data-key');
+                if (!keyToDelete) return;
+                if (!confirm(`Are you sure you want to delete the key: ${atob(keyToDelete)}?`)) {
+                    return;
+                }
+
+                const button = form.querySelector('button[type="submit"]');
+                const originalIcon = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    },
+                    body: JSON.stringify({ key: keyToDelete })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
-                    const button = this.querySelector('button[type="submit"]');
-                    const originalIcon = button.innerHTML;
-                    button.disabled = true;
-                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-
-                    fetch(this.action, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                        },
-                        body: JSON.stringify({ key: keyToDelete })
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast(data.message, 'success');
-                            // Remove the row from the table
-                            this.closest('tr').remove();
-                        } else {
-                            showToast(data.message, 'danger');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast(error.message || 'An error occurred while deleting the key', 'danger');
-                    })
-                    .finally(() => {
-                        button.disabled = false;
-                        button.innerHTML = originalIcon;
-                    });
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        // Remove the row from the table
+                        const row = form.closest('tr');
+                        if (row) row.remove();
+                    } else {
+                        showToast(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast(error.message || 'An error occurred while deleting the key', 'danger');
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalIcon;
                 });
             });
         });

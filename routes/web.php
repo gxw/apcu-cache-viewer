@@ -93,7 +93,7 @@ $router->post('/clear-cache', function (Request $request) use ($dashboardControl
     return $dashboardController->clearCache($request);
 });
 
-$router->delete('/delete-key/{key}', function (Request $request, string $key) use ($dashboardController, $requireCsrf, $requireRateLimit) {
+$router->post('/delete-key', function (Request $request) use ($dashboardController, $requireCsrf, $requireRateLimit) {
     $rateLimitError = $requireRateLimit(30, 60)($request);
     if ($rateLimitError !== null) {
         return $rateLimitError;

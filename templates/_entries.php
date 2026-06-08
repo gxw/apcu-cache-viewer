@@ -174,7 +174,9 @@ if (!isset($view)) {
                                                 <i class="fas fa-thumbtack"></i>
                                             </button>
 
-                                            <form action="<?= $view->url('/delete-key') ?>" method="POST" class="d-inline delete-key-form" data-key="<?= base64_encode($this->e($entry->getKey())) ?>">
+                                            <form action="<?= $view->url('/delete-key') ?>" method="POST" class="d-inline delete-key-form" data-key="<?= base64_encode($this->e($entry->getKey())) ?>" data-turbo="false">
+                                                    <?= $this->csrfField() ?>
+                                                    <input type="hidden" name="key" value="<?= base64_encode($this->e($entry->getKey())) ?>">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" <?= in_array($entry->getKey(), $pinnedKeys ?? []) ? 'disabled title="Unpin before deleting"' : '' ?>>
                                                         <i class="fas fa-trash"></i>
                                                     </button>
