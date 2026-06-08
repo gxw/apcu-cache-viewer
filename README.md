@@ -59,7 +59,7 @@ A modern, full-featured web interface for monitoring and managing **APCu** (user
 ### 1. Clone
 
 ```bash
-git clone https://github.com/YOUR_USER/php-apcu-opcache-viewer.git
+git clone https://github.com/gxw/apcu-cache-viewer.git
 cd php-apcu-opcache-viewer
 ```
 
