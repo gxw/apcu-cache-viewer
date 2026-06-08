@@ -137,7 +137,7 @@ class DashboardController
             ]), 403, ['Content-Type' => 'application/json']);
         }
 
-        $result = $this->cacheService->deleteKey($key);
+        $result = $this->cacheService->deleteCacheEntry($key);
         $this->auditService->log('delete_key', $key, $result ? 'Deleted' : 'Failed');
 
         return new Response(json_encode([
