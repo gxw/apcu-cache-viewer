@@ -105,8 +105,15 @@
 
 <?php $this->section('scripts'); ?>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const memoryData = {
+(function() {
+    'use strict';
+    var memoryChart = document.getElementById('memoryChart');
+    var keysChart = document.getElementById('keysChart');
+    if (!memoryChart || !keysChart) return;
+
+    new Chart(memoryChart, {
+        type: 'doughnut',
+        data: {
             labels: ['Used Memory', 'Free Memory', 'Wasted Memory'],
             datasets: [{
                 data: [
@@ -116,9 +123,16 @@
                 ],
                 backgroundColor: ['#0d6efd', '#198754', '#dc3545']
             }]
-        };
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
 
-        const keysData = {
+    new Chart(keysChart, {
+        type: 'doughnut',
+        data: {
             labels: ['Cached Keys', 'Pending Deletion', 'Max Keys'],
             datasets: [{
                 data: [
@@ -128,33 +142,12 @@
                 ],
                 backgroundColor: ['#0d6efd', '#ffc107', '#6c757d']
             }]
-        };
-
-        new Chart(document.getElementById('memoryChart'), {
-            type: 'doughnut',
-            data: memoryData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
-
-        new Chart(document.getElementById('keysChart'), {
-            type: 'doughnut',
-            data: keysData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
     });
+})();
 </script>
 <?php $this->endSection(); ?>

@@ -356,7 +356,7 @@ echo $view->extend('layout');
 <script>
 // Trend Charts
 <?php if (!empty($stats['trends']) && count($stats['trends']) > 1): ?>
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     var trendData = <?= json_encode($stats['trends']) ?>;
     var labels = trendData.map(function(s) { return new Date(s.time * 1000).toLocaleTimeString(); });
 
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+})();
 <?php endif; ?>
 
 // Auto-refresh dashboard

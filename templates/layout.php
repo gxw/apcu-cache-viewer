@@ -515,6 +515,9 @@
         });
     </script>
 
+    <!-- Scripts from child templates -->
+    <?= $this->yield('scripts') ?>
+
     <script>
         // Dark mode toggle
         function toggleDarkMode(enabled) {
